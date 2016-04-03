@@ -15,3 +15,35 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+import config
+
+import time
+
+import pygame
+
+running = False
+
+
+def main():
+    # not that I'm planning on writing to this...
+    global running
+
+    pygame.init()
+
+    # Reading only button presses via events, to avoid tracking state
+    # manually. Axes are read by snapshotting.
+    pygame.event.set_allowed(pygame.JOYBUTTONDOWN)
+
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.JOYBUTTONDOWN:
+                TODO
+
+        # NO BUSYLOOPING. And locking with ``pygame.event.wait`` doesn't sound
+        # very sophisticated (at this point, at least).
+        time.sleep(.01)
+
+
+if __name__ == '__main__':
+    running = True
+    main()
