@@ -20,11 +20,22 @@ import flystick_config
 import time
 
 import pygame
+from RPIO import PWM
+
+try:
+    import scrollphat
+except ImportError:
+    scrollphat = None
 
 running = False
 
 
-def main():
+def render():
+    if not scrollphat:
+        return
+
+
+def main(dma_channel):
     # not that I'm planning on writing to this...
     global running
 
@@ -34,10 +45,16 @@ def main():
     # manually. Axes are read by snapshotting.
     pygame.event.set_allowed(pygame.JOYBUTTONDOWN)
 
+    # ~10 bit accuracy
+    PWM.setup(pulse_incr_us=1)
+    PWM.init_channel(channel=dma_channel)
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.JOYBUTTONDOWN:
                 TODO
+
+        render()
 
         # NO BUSYLOOPING. And locking with ``pygame.event.wait`` doesn't sound
         # very sophisticated (at this point, at least).
@@ -46,4 +63,4 @@ def main():
 
 if __name__ == '__main__':
     running = True
-    main()
+    main(dma_channel=0)
