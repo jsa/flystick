@@ -51,9 +51,11 @@ def main(dma_channel):
 
     # ~10 bit accuracy
     PWM.setup(pulse_incr_us=1)
-    PWM.init_channel(channel=dma_channel)
+    PWM.init_channel(channel=dma_channel,
+                     subcycle_time_us=7000)
 
-    scrollphat.set_brightness(1)
+    # scrollphat.set_brightness(1)
+    scrollphat.clear()
 
     sticks = map(pygame.joystick.Joystick,
                  range(pygame.joystick.get_count()))
@@ -77,6 +79,13 @@ def main(dma_channel):
             print "; ".join(state)
 
         render()
+
+        def us(x):
+            return int(500 + (x + 1) * 500)
+
+        PWM.add_channel_pulse(0, 2, 500, us(stick.get_axis(0)))
+        PWM.add_channel_pulse(0, 2, 2500, us(stick.get_axis(1)))
+        PWM.add_channel_pulse(0, 2, 4500, us(stick.get_axis(2)))
 
         # NO BUSYLOOPING. And locking with ``pygame.event.wait`` doesn't sound
         # very sophisticated (at this point, at least).
