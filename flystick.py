@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import flystick_config
 
 import logging
+import random
 import time
 
 import pygame
@@ -35,6 +36,7 @@ running = False
 def render():
     if not scrollphat:
         return
+    scrollphat.set_pixels(lambda x, y: random.random() > .5, auto_update=True)
 
 
 def main(dma_channel):
@@ -50,6 +52,8 @@ def main(dma_channel):
     # ~10 bit accuracy
     PWM.setup(pulse_incr_us=1)
     PWM.init_channel(channel=dma_channel)
+
+    scrollphat.set_brightness(1)
 
     sticks = map(pygame.joystick.Joystick,
                  range(pygame.joystick.get_count()))
