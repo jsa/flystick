@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import flystick_config
 
+import logging
 import time
 
 import pygame
@@ -24,7 +25,8 @@ from RPIO import PWM
 
 try:
     import scrollphat
-except ImportError:
+except (ImportError, IOError) as e:
+    logging.warn(e, exc_info=1)
     scrollphat = None
 
 running = False
@@ -49,16 +51,32 @@ def main(dma_channel):
     PWM.setup(pulse_incr_us=1)
     PWM.init_channel(channel=dma_channel)
 
+    sticks = map(pygame.joystick.Joystick,
+                 range(pygame.joystick.get_count()))
+    for stick in sticks:
+        stick.init()
+    print "Found %d joysticks" % len(sticks)
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.JOYBUTTONDOWN:
-                TODO
+                print "JOYBUTTONDOWN", repr(event)
+
+        for stick in sticks:
+            state = ["%s (%d)" % (stick.get_name(), stick.get_id())]
+            state += ["B%d: %s" % (b, stick.get_button(b))
+                      for b in range(stick.get_numbuttons())]
+            state += ["A%d: %f" % (a, stick.get_axis(a))
+                      for a in range(stick.get_numaxes())]
+            state += ["H%d: %r" % (h, stick.get_hat(h))
+                      for h in range(stick.get_numhats())]
+            print "; ".join(state)
 
         render()
 
         # NO BUSYLOOPING. And locking with ``pygame.event.wait`` doesn't sound
         # very sophisticated (at this point, at least).
-        time.sleep(.01)
+        time.sleep(.2)
 
 
 if __name__ == '__main__':
