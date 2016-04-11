@@ -25,7 +25,8 @@ import pygame
 from RPIO import PWM
 
 try:
-    import scrollphat
+    #import scrollphat
+    scrollphat = None
 except (ImportError, IOError) as e:
     logging.warn(e, exc_info=1)
     scrollphat = None
@@ -39,9 +40,14 @@ def render():
     scrollphat.set_pixels(lambda x, y: random.random() > .5, auto_update=True)
 
 
-def main(dma_channel):
+def main(dma_channel, gpio):
     # not that I'm planning on writing to this...
     global running
+
+    if scrollphat:
+        scrollphat.clear()
+        scrollphat.set_brightness(1)
+        render()
 
     pygame.init()
 
@@ -49,13 +55,17 @@ def main(dma_channel):
     # manually. Axes are read by snapshotting.
     pygame.event.set_allowed(pygame.JOYBUTTONDOWN)
 
+    PWM.set_loglevel(PWM.LOG_LEVEL_ERRORS)
+
     # ~10 bit accuracy
     PWM.setup(pulse_incr_us=1)
+    # didn't work with under 20ms subcycle (which happens to
+    # be quite ok in this case)
     PWM.init_channel(channel=dma_channel,
-                     subcycle_time_us=7000)
+                     subcycle_time_us=20000)
 
-    # scrollphat.set_brightness(1)
-    scrollphat.clear()
+    #import signal
+    #signal.signal(signal.SIGCHLD, signal.SIG_IGN)
 
     sticks = map(pygame.joystick.Joystick,
                  range(pygame.joystick.get_count()))
@@ -63,6 +73,7 @@ def main(dma_channel):
         stick.init()
     print "Found %d joysticks" % len(sticks)
 
+    pulse = 0
     while running:
         for event in pygame.event.get():
             if event.type == pygame.JOYBUTTONDOWN:
@@ -83,15 +94,18 @@ def main(dma_channel):
         def us(x):
             return int(500 + (x + 1) * 500)
 
-        PWM.add_channel_pulse(0, 2, 500, us(stick.get_axis(0)))
-        PWM.add_channel_pulse(0, 2, 2500, us(stick.get_axis(1)))
-        PWM.add_channel_pulse(0, 2, 4500, us(stick.get_axis(2)))
+        #PWM.add_channel_pulse(dma_channel, gpio, 500, us(stick.get_axis(2)))
+        for chan in range(8):
+            PWM.add_channel_pulse(dma_channel, gpio, start=500 + chan * 2000, width=500 + pulse)
 
         # NO BUSYLOOPING. And locking with ``pygame.event.wait`` doesn't sound
-        # very sophisticated (at this point, at least).
-        time.sleep(.2)
+        # very sophisticated. (At this point, at least.)
+        time.sleep(.1)
+        pulse += 50
+        pulse %= 1000
 
 
 if __name__ == '__main__':
     running = True
-    main(dma_channel=0)
+    # ended up to channel 5: https://www.raspberrypi.org/forums/viewtopic.php?f=32&t=86339
+    main(dma_channel=14, gpio=18)
