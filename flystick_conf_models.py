@@ -39,7 +39,7 @@ class XYDot(object):
 
     def horizontal(self):
         def render(value, scrollphat):
-            x = self.x_pos + int(round(value * 2))
+            x = self.center_x + int(round(value * 2))
             if self.y is None:
                 self.x = x
             else:
