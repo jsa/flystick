@@ -52,13 +52,12 @@ def loop(dma_channel, gpio):
 
     # ~10 bit accuracy
     PWM.setup(pulse_incr_us=1)
-    # Didn't seem to work with under 20ms subcycle. Which
-    # is ok in this case, as the PPM cycle should be at least 20ms.
-    PWM.init_channel(channel=dma_channel,
-                     subcycle_time_us=max(500 + 2000 * len(CHANNELS), 20000))
+    PWM.init_channel(channel=dma_channel, subcycle_time_us=20000)
 
     #import signal
     #signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+
+    _prev = None
 
     while _running:
         # clicks for advanced mapping
@@ -66,8 +65,7 @@ def loop(dma_channel, gpio):
         for evt in pygame.event.get():
             if evt.type == pygame.JOYBUTTONDOWN:
                 #print "JOYBUTTONDOWN: %r\n%s" % (evt, dir(evt))
-                #clicks.append()
-                pass
+                clicks.append(evt)
             elif evt.type == pygame.JOYHATMOTION and any(evt.value):
                 #print "JOYHATMOTION: %r\n%s" % (evt, dir(evt))
                 hats.append(evt)
@@ -75,17 +73,23 @@ def loop(dma_channel, gpio):
         output = [ch((clicks, hats)) for ch in CHANNELS]
         #print "Channels: %s" % (output,)
 
-        for ch, value in enumerate(output):
-            PWM.add_channel_pulse(dma_channel,
-                                  gpio,
-                                  start=500 + ch * 2000,
-                                  width=int(round(1000 + 500 * value)))
+        if output != _prev:
+            PWM.add_channel_pulse(dma_channel, gpio, start=0, width=20000)
+            pos = 500
+            for ch, value in enumerate(output):
+                PWM.add_channel_pulse(dma_channel,
+                                      gpio,
+                                      start=pos,
+                                      width=300)
+                pos += int(round(1500 + 500 * value))
 
-        if scrollphat:
-            scrollphat.clear_buffer()
-            for rend, value in zip(DISPLAY, output):
-                rend(value, scrollphat)
-            scrollphat.update()
+            if scrollphat:
+                scrollphat.clear_buffer()
+                for rend, value in zip(DISPLAY, output):
+                    rend(value, scrollphat)
+                scrollphat.update()
+
+        _prev = output
 
         # NO BUSYLOOPING. And locking with ``pygame.event.wait`` doesn't sound
         # very sophisticated. (At this point, at least.)

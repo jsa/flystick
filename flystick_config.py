@@ -19,18 +19,18 @@ CHANNELS = (
     stick.button(3),
 )
 
-dot = XYDot(center_x=5)
+stick_dot = XYDot(center_x=5)
 
 # Render outputs (channels). One-to-one line match to CHANNELS.
 DISPLAY = (
     # channel 1: dot horizontal axis
-    dot.horizontal(),
+    stick_dot.horizontal(),
     # channel 2: dot vertical axis
-    dot.vertical(),
+    stick_dot.vertical(),
     # channel 3: throttle bar
-    VBar(center_x=0, width=2),
+    YBar(center_x=0, width=2),
     # channel 4: flight mode switch
-    VPoint(center_x=9),
+    YDot(center_x=9),
     # buttons demo
     Block(corner=(10, 0)),
     Block(corner=(10, 1)),

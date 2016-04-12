@@ -58,6 +58,24 @@ class Switch(object):
         return 2. * self.step / (self.steps - 1) - 1
 
 
+def XDot(center):
+    x, y = center
+
+    def render(value, scrollphat):
+        _x = x + int(round(value * 2))
+        scrollphat.set_pixel(_x, 4 - y, True)
+
+    return render
+
+
+def YDot(center_x):
+    def render(value, scrollphat):
+        _y = 2 + int(round(value * 2))
+        scrollphat.set_pixel(center_x, 4 - _y, True)
+
+    return render
+
+
 class XYDot(object):
     def __init__(self, center_x):
         self.center_x = center_x
@@ -84,25 +102,7 @@ class XYDot(object):
         return render
 
 
-def HPoint(center):
-    x, y = center
-
-    def render(value, scrollphat):
-        _x = x + int(round(value * 2))
-        scrollphat.set_pixel(_x, 4 - y, True)
-
-    return render
-
-
-def VPoint(center_x):
-    def render(value, scrollphat):
-        _y = 2 + int(round(value * 2))
-        scrollphat.set_pixel(center_x, 4 - _y, True)
-
-    return render
-
-
-def VBar(center_x, width=1):
+def YBar(center_x, width=1):
     xs = [center_x + x for x in range(width)]
 
     def render(value, scrollphat):
