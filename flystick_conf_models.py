@@ -18,6 +18,30 @@ def Neg(ch):
     return lambda clicks: -ch(clicks)
 
 
+
+class Corsshair(object):
+    def __init__(self, center):
+        self.center_x, self.center_y = center
+        self.x = self.y = 0
+
+    def maybe_render(self, scrollphat):
+        if not (self.x is None or self.y is None):
+            scrollphat.set_pixel(self.x, 4 - self.y, True)
+            self.x = self.y = None
+
+    def horizontal(self):
+        def render(value, scrollphat):
+            self.x = self.center_x + int(round(value * 2))
+            self.maybe_render(scrollphat)
+        return render
+
+    def vertical(self):
+        def render(value, scrollphat):
+            self.y = self.center_y + int(round(value * 2))
+            self.maybe_render(scrollphat)
+        return render
+
+
 def HPoint(center):
     x, y = center
 

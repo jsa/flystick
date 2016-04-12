@@ -11,12 +11,14 @@ CHANNELS = (
     stick.button(1), # channel 5
 )
 
+cross = Crosshair(center=(5, 2))
+
 # Render outputs (channels). One-to-one line match to CHANNELS.
 DISPLAY = (
     # channel 1: cross-hair horizontal line
-    HPoint(center=(5, 2)),
+    cross.horizontal(),
     # channel 2: cross-hair vertical line
-    VPoint(center=(5, 2)),
+    cross.vertical(),
     # channel 3: throttle bar
     VBar(x_pos=0, width=2),
     # channel 4: button square blinky
