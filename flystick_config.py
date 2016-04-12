@@ -11,7 +11,7 @@ CHANNELS = (
     # channel 3: throttle (reversed)
     -stick.axis(2),
     # channel 4: flight mode; 5 states to match scrollphat vertical resolution
-    #Switch(),
+    Switch(stick.event(hat=(0, 0)), steps=5),
 )
 
 dot = XYDot(center_x=5)

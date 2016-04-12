@@ -62,16 +62,18 @@ def loop(dma_channel, gpio):
 
     while _running:
         # clicks for advanced mapping
-        clicks = ()
-        for event in pygame.event.get():
-            if event.type == pygame.JOYBUTTONDOWN:
-                print "JOYBUTTONDOWN: %r\n%s" % (event, dir(event))
+        clicks, hats = {}, {}
+        for evt in pygame.event.get():
+            if evt.type == pygame.JOYBUTTONDOWN:
+                print "JOYBUTTONDOWN: %r\n%s" % (evt, dir(evt))
                 #clicks.append()
-            elif event.type == pygame.JOYHATMOTION:
-                print "JOYHATMOTION: %r\n%s" % (event, dir(event))
-                #clicks.append()
+            elif evt.type == pygame.JOYHATMOTION and any(evt.value):
+                print "JOYHATMOTION: %r\n%s" % (evt, dir(evt))
+                hats.setdefault(evt.joy, {}) \
+                    .setdefault(evt.hat, []) \
+                    .append(evt)
 
-        output = [ch(clicks) for ch in CHANNELS]
+        output = [ch((clicks, hats)) for ch in CHANNELS]
         print "Channels: %s" % (output,)
 
         for ch, value in enumerate(output):

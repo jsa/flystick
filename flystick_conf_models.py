@@ -7,11 +7,11 @@ class Ch(object):
     def __init__(self, fn):
         self.fn = fn
 
-    def __call__(self, clicks):
-        return self.fn(clicks)
+    def __call__(self, evts):
+        return self.fn(evts)
 
     def __neg__(self):
-        return Ch(lambda clicks: -self.fn(clicks))
+        return Ch(lambda evts: -self.fn(evts))
 
 
 class Joystick(object):
@@ -21,15 +21,39 @@ class Joystick(object):
         self._joy.init()
 
     def axis(self, axis):
-        return Ch(lambda clicks: self._joy.get_axis(axis))
+        return Ch(lambda evts: self._joy.get_axis(axis))
 
     def button(self, button):
-        return Ch(lambda clicks: 1. if self._joy.get_button(button) else -1.)
+        return Ch(lambda evts: 1. if self._joy.get_button(button) else -1.)
+
+    def event(self, button=None, hat=None):
+        if hat:
+            hat, axis = hat
+            def map_evts(hats):
+                for evt in hats:
+                    if evt.joy == self._joy.get_id() \
+                       and evt.hat == hat:
+                        yield evt.value[axis]
+            return lambda (clicks, hats): map_evts(hats)
+        elif button is not None:
+            raise NotImplementedError
+        else:
+            raise ValueError("hat or button required")
 
 
 class Switch(object):
-    def __init__(self, source):
-        pass
+    def __init__(self, steps, source):
+        self.max_step = steps - 1
+        self.source = source
+        self.step = 0
+
+    def __call__(self, evts):
+        for value in self.source(evts):
+            if value > 0:
+                self.step = min(self.step + 1, self.max_step)
+            elif value < 0:
+                self.step = max(self.step - 1, 0)
+        return int(round(float(self.max_step) / self.step * 2)) - 1
 
 
 class XYDot(object):
