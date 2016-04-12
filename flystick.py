@@ -62,19 +62,18 @@ def loop(dma_channel, gpio):
 
     while _running:
         # clicks for advanced mapping
-        clicks, hats = {}, {}
+        clicks, hats = [], []
         for evt in pygame.event.get():
             if evt.type == pygame.JOYBUTTONDOWN:
-                print "JOYBUTTONDOWN: %r\n%s" % (evt, dir(evt))
+                #print "JOYBUTTONDOWN: %r\n%s" % (evt, dir(evt))
                 #clicks.append()
+                pass
             elif evt.type == pygame.JOYHATMOTION and any(evt.value):
-                print "JOYHATMOTION: %r\n%s" % (evt, dir(evt))
-                hats.setdefault(evt.joy, {}) \
-                    .setdefault(evt.hat, []) \
-                    .append(evt)
+                #print "JOYHATMOTION: %r\n%s" % (evt, dir(evt))
+                hats.append(evt)
 
         output = [ch((clicks, hats)) for ch in CHANNELS]
-        print "Channels: %s" % (output,)
+        #print "Channels: %s" % (output,)
 
         for ch, value in enumerate(output):
             PWM.add_channel_pulse(dma_channel,
@@ -90,7 +89,7 @@ def loop(dma_channel, gpio):
 
         # NO BUSYLOOPING. And locking with ``pygame.event.wait`` doesn't sound
         # very sophisticated. (At this point, at least.)
-        time.sleep(.3)
+        time.sleep(.02)
 
 
 if __name__ == '__main__':

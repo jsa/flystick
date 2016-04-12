@@ -43,17 +43,19 @@ class Joystick(object):
 
 class Switch(object):
     def __init__(self, steps, source):
-        self.max_step = steps - 1
+        self.steps = steps
         self.source = source
         self.step = 0
 
     def __call__(self, evts):
         for value in self.source(evts):
             if value > 0:
-                self.step = min(self.step + 1, self.max_step)
+                self.step = (self.step + 1) % self.steps
             elif value < 0:
-                self.step = max(self.step - 1, 0)
-        return int(round(float(self.max_step) / self.step * 2)) - 1
+                self.step -= 1
+                if self.step < 0:
+                    self.step += self.steps
+        return 2. * self.step / (self.steps - 1) - 1
 
 
 class XYDot(object):
@@ -125,6 +127,6 @@ def Block(corner, size=(1, 1)):
         if value >= 0:
             for x in xs:
                 for y in ys:
-                    scrollphat.set_pixel(x, y, True)
+                    scrollphat.set_pixel(x, 4 - y, True)
 
     return render
