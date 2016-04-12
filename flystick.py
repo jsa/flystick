@@ -72,6 +72,7 @@ def loop(dma_channel, gpio):
                 #clicks.append()
 
         output = [ch(clicks) for ch in CHANNELS]
+        print "Channels: %s" % (output,)
 
         for ch, value in enumerate(output):
             PWM.add_channel_pulse(dma_channel,
@@ -87,7 +88,7 @@ def loop(dma_channel, gpio):
 
         # NO BUSYLOOPING. And locking with ``pygame.event.wait`` doesn't sound
         # very sophisticated. (At this point, at least.)
-        time.sleep(.03)
+        time.sleep(.3)
 
 
 if __name__ == '__main__':

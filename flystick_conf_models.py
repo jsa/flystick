@@ -3,6 +3,7 @@ import pygame.joystick
 
 class Joystick(object):
     def __init__(self, joy_id):
+        pygame.joystick.init()
         self._joy = pygame.joystick.Joystick(joy_id)
         self._joy.init()
 
@@ -13,12 +14,16 @@ class Joystick(object):
         return lambda clicks: 1. if self._joy.get_button(button) else -1.
 
 
+def Neg(ch):
+    return lambda clicks: -ch(clicks)
+
+
 def HPoint(center):
     x, y = center
 
     def render(value, scrollphat):
-        _x = x + (int(round(value * 5 / 2)))
-        scrollphat.set_pixel(_x, y, True)
+        _x = x + int(round(value * 2))
+        scrollphat.set_pixel(_x, 4 - y, True)
 
     return render
 
@@ -27,8 +32,8 @@ def VPoint(center):
     x, y = center
 
     def render(value, scrollphat):
-        _y = y + (int(round(value * 5 / 2)))
-        scrollphat.set_pixel(x, _y, True)
+        _y = y + int(round(value * 2))
+        scrollphat.set_pixel(x, 4 - _y, True)
 
     return render
 
@@ -41,8 +46,8 @@ def VBar(x_pos, width=1):
         # could be optimized by using ``scrollphat.set_col``, but
         # would be difficult to read
         for x in xs:
-            for y in range(0, height + 1):
-                scrollphat.set_pixel(x, y, True)
+            for y in range(0, height):
+                scrollphat.set_pixel(x, 4 - y, True)
 
     return render
 
