@@ -5,7 +5,7 @@ stick = Joystick(0)
 # Output (PPM) channels.
 CHANNELS = (
     stick.axis(0), # channel 1
-    stick.axis(1), # channel 2
+    Neg(stick.axis(1)), # channel 2
     Neg(stick.axis(2)), # channel 3
     stick.button(0), # channel 4
     stick.button(1), # channel 5

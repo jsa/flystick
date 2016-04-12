@@ -19,7 +19,7 @@ def Neg(ch):
 
 
 
-class Corsshair(object):
+class Crosshair(object):
     def __init__(self, center):
         self.center_x, self.center_y = center
         self.x = self.y = 0
