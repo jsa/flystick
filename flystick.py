@@ -75,7 +75,7 @@ def main(dma_channel, gpio):
     pi.wave_add_generic([pigpio.pulse(pi_gpio, 0, 2000)])
     # padding to make deleting logic easier
     waves = [None, None, pi.wave_create()]
-    pi.wave_send_repeat(waves[0])
+    pi.wave_send_repeat(waves[-1])
 
     prev = None
 
@@ -96,7 +96,8 @@ def main(dma_channel, gpio):
         if _current_output != prev:
             pulses, pos = [], 0
             for value in _current_output:
-                us = int(round(1500 + 500 * value))
+                # empirical values for Taranis
+                us = int(round(1330 + 470 * value))
                 pulses += [pigpio.pulse(0, pi_gpio, 300),
                            pigpio.pulse(pi_gpio, 0, us - 300)]
                 pos += us
