@@ -32,26 +32,26 @@ except (ImportError, IOError) as e:
 
 _running = False
 
-_current_output = []
+_output = ()
 
 
 def render():
     while _running:
         scrollphat.clear_buffer()
-        # ``_current_output`` access should be thread-safe; should be
-        # de-referenced only once
-        for rend, value in zip(DISPLAY, _current_output):
+        # ``_output`` access should be thread-safe;  de-referenced just once
+        for rend, value in zip(DISPLAY, _output):
             rend(value, scrollphat)
         scrollphat.update()
         time.sleep(.05)
 
 
 def main(dma_channel, gpio):
-    global _current_output
+    global _output
 
     if scrollphat:
         scrollphat.clear()
         scrollphat.set_brightness(DISPLAY_BRIGHTNESS)
+        # fork to avoid crash in case of I2C connection issues
         th = threading.Thread(target=render)
         th.daemon = True
         th.start()
@@ -90,12 +90,13 @@ def main(dma_channel, gpio):
                 #print "JOYHATMOTION: %r\n%s" % (evt, dir(evt))
                 hats.append(evt)
 
-        _current_output = [ch((clicks, hats)) for ch in CHANNELS]
+        # tuple to enforce immutability
+        _output = tuple(ch((clicks, hats)) for ch in CHANNELS)
         #print "Channels: %s" % (output,)
 
-        if _current_output != prev:
+        if _output != prev:
             pulses, pos = [], 0
-            for value in _current_output:
+            for value in _output:
                 # empirical values for Taranis
                 us = int(round(1330 + 470 * value))
                 pulses += [pigpio.pulse(0, pi_gpio, 300),
@@ -113,7 +114,7 @@ def main(dma_channel, gpio):
             if last:
                 pi.wave_delete(last)
 
-        prev = _current_output
+        prev = _output
 
         # NO BUSYLOOPING. And locking with ``pygame.event.wait`` doesn't sound
         # very sophisticated. (At this point, at least.)
