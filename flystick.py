@@ -18,27 +18,43 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from flystick_config import *
 
 import logging
+import pigpio
 import pygame
-from RPIO import PWM
+import threading
 import time
 
 try:
     import scrollphat
 except (ImportError, IOError) as e:
-    logging.warn(e, exc_info=1)
+    logging.warn(e, exc_info=True)
     scrollphat = None
 
 
 _running = False
 
+_current_output = []
 
-def loop(dma_channel, gpio):
-    # not that I'm planning on writing to this...
-    global _running
+
+def render():
+    while _running:
+        scrollphat.clear_buffer()
+        # ``_current_output`` access should be thread-safe; should be
+        # de-referenced only once
+        for rend, value in zip(DISPLAY, _current_output):
+            rend(value, scrollphat)
+        scrollphat.update()
+        time.sleep(.05)
+
+
+def main(dma_channel, gpio):
+    global _current_output
 
     if scrollphat:
         scrollphat.clear()
         scrollphat.set_brightness(DISPLAY_BRIGHTNESS)
+        th = threading.Thread(target=render)
+        th.daemon = True
+        th.start()
 
     pygame.init()
 
@@ -48,17 +64,20 @@ def loop(dma_channel, gpio):
     pygame.event.set_allowed([pygame.JOYBUTTONDOWN,
                               pygame.JOYHATMOTION])
 
-    PWM.set_loglevel(PWM.LOG_LEVEL_ERRORS)
-
-    # ~10 bit accuracy
-    PWM.setup(pulse_incr_us=1)
-    PWM.init_channel(channel=dma_channel, subcycle_time_us=20000)
-    PWM.add_channel_pulse(dma_channel, gpio, start=0, width=19999)
+    pi = pigpio.pi()
+    pi.set_mode(gpio, pigpio.OUTPUT)
 
     #import signal
     #signal.signal(signal.SIGCHLD, signal.SIG_IGN)
 
-    _prev = None
+    pi_gpio = 1 << gpio
+
+    pi.wave_add_generic([pigpio.pulse(pi_gpio, 0, 2000)])
+    # padding to make deleting logic easier
+    waves = [None, None, pi.wave_create()]
+    pi.wave_send_repeat(waves[0])
+
+    prev = None
 
     while _running:
         # clicks for advanced mapping
@@ -71,32 +90,29 @@ def loop(dma_channel, gpio):
                 #print "JOYHATMOTION: %r\n%s" % (evt, dir(evt))
                 hats.append(evt)
 
-        output = [ch((clicks, hats)) for ch in CHANNELS]
+        _current_output = [ch((clicks, hats)) for ch in CHANNELS]
         #print "Channels: %s" % (output,)
 
-        if output != _prev:
-            PWM.clear_channel_gpio(dma_channel, gpio)
-            pos = 0
-            for value in output:
+        if _current_output != prev:
+            pulses, pos = [], 0
+            for value in _current_output:
                 us = int(round(1500 + 500 * value))
-                PWM.add_channel_pulse(dma_channel,
-                                      gpio,
-                                      start=pos + 300,
-                                      width=us - 300)
+                pulses += [pigpio.pulse(0, pi_gpio, 300),
+                           pigpio.pulse(pi_gpio, 0, us - 300)]
                 pos += us
 
-            PWM.add_channel_pulse(dma_channel,
-                                  gpio,
-                                  start=pos,
-                                  width=20000 - pos - 1)
+            pulses += [pigpio.pulse(0, pi_gpio, 300),
+                       pigpio.pulse(pi_gpio, 0, 20000 - 300 - pos - 1)]
 
-            if scrollphat:
-                scrollphat.clear_buffer()
-                for rend, value in zip(DISPLAY, output):
-                    rend(value, scrollphat)
-                scrollphat.update()
+            pi.wave_add_generic(pulses)
+            waves.append(pi.wave_create())
+            pi.wave_send_using_mode(waves[-1], pigpio.WAVE_MODE_REPEAT_SYNC)
 
-        _prev = output
+            last, waves = waves[0], waves[1:]
+            if last:
+                pi.wave_delete(last)
+
+        prev = _current_output
 
         # NO BUSYLOOPING. And locking with ``pygame.event.wait`` doesn't sound
         # very sophisticated. (At this point, at least.)
@@ -105,5 +121,5 @@ def loop(dma_channel, gpio):
 
 if __name__ == '__main__':
     _running = True
-    # ended up to channel 5: https://www.raspberrypi.org/forums/viewtopic.php?f=32&t=86339
-    loop(dma_channel=5, gpio=18)
+    # DMA channel: https://www.raspberrypi.org/forums/viewtopic.php?f=32&t=86339
+    main(dma_channel=5, gpio=18)
