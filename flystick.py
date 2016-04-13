@@ -53,6 +53,7 @@ def loop(dma_channel, gpio):
     # ~10 bit accuracy
     PWM.setup(pulse_incr_us=1)
     PWM.init_channel(channel=dma_channel, subcycle_time_us=20000)
+    PWM.add_channel_pulse(dma_channel, gpio, start=0, width=19999)
 
     #import signal
     #signal.signal(signal.SIGCHLD, signal.SIG_IGN)
@@ -74,14 +75,20 @@ def loop(dma_channel, gpio):
         #print "Channels: %s" % (output,)
 
         if output != _prev:
-            PWM.add_channel_pulse(dma_channel, gpio, start=0, width=20000)
-            pos = 500
-            for ch, value in enumerate(output):
+            PWM.clear_channel_gpio(dma_channel, gpio)
+            pos = 0
+            for value in output:
+                us = int(round(1500 + 500 * value))
                 PWM.add_channel_pulse(dma_channel,
                                       gpio,
-                                      start=pos,
-                                      width=300)
-                pos += int(round(1500 + 500 * value))
+                                      start=pos + 300,
+                                      width=us - 300)
+                pos += us
+
+            PWM.add_channel_pulse(dma_channel,
+                                  gpio,
+                                  start=pos,
+                                  width=20000 - pos - 1)
 
             if scrollphat:
                 scrollphat.clear_buffer()
