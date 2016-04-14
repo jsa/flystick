@@ -18,7 +18,7 @@ The input/output-mapping and visualization are
 
 I wanted to try out how it's to fly FPV with a joystick. Project https://github.com/Iezious/rcjoy/wiki did seem very interesting, but I wasn't that thrilled about the low-level, hardware-specific approach; I wanted a simpler and more future-proof solution.
 
-When the Raspberry Pi Zero came out, it seemed like a perfect hardware component for the problem. And then with the python libraries, the whole set came together very nicely — with very little code.
+When the Raspberry Pi Zero came out, it seemed like a perfect hardware component for solving the problem. And then with the python libraries, the whole set came together very nicely — with very little code.
 
 ## Setup (on Raspberry Pi)
 
