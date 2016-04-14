@@ -55,6 +55,6 @@ When the Raspberry Pi Zero came out, it seemed like a perfect hardware component
 
 ### Wiring
 
-1. 5V in to Raspberry Pi
+1. 5V &rarr; Raspberry Pi
 
-2. PPM output to transmitter trainer port
+2. Raspberry PPM output &rarr; transmitter trainer port
