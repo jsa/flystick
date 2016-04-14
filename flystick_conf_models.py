@@ -105,35 +105,35 @@ def Switch(source, steps, initial=None):
 
 
 def XDot(center):
-    x, y = center
+    col, row = center
 
     def render(value, scrollphat):
-        _x = x + int(round(value * 2))
-        scrollphat.set_pixel(_x, 4 - y, True)
+        x = int(round(value * 2))
+        scrollphat.set_pixel(col + x, row - 4, True)
 
     return render
 
 
-def YDot(center_x):
+def YDot(col):
     def render(value, scrollphat):
-        _y = 2 + int(round(value * 2))
-        scrollphat.set_pixel(center_x, 4 - _y, True)
+        y = 2 + int(round(value * 2))
+        scrollphat.set_pixel(col, y - 4, True)
 
     return render
 
 
 class XYDot(object):
-    def __init__(self, center_x):
-        self.center_x = center_x
+    def __init__(self, col):
+        self.col = col
         self.x = self.y = None
 
     def horizontal(self):
         def render(value, scrollphat):
-            x = self.center_x + int(round(value * 2))
+            x = self.col + int(round(value * 2))
             if self.y is None:
                 self.x = x
             else:
-                scrollphat.set_pixel(x, 4 - self.y, True)
+                scrollphat.set_pixel(x, self.y - 4, True)
                 self.x = self.y = None
         return render
 
@@ -143,36 +143,41 @@ class XYDot(object):
             if self.x is None:
                 self.y = y
             else:
-                scrollphat.set_pixel(self.x, 4 - y, True)
+                scrollphat.set_pixel(self.x, y - 4, True)
                 self.x = self.y = None
         return render
 
 
-def YBar(center_x, width=1):
-    xs = [center_x + x for x in range(width)]
+def YBar(col, width=1):
+    cols = [col + x for x in range(width)]
+    bars = (
+        0b00000,
+        0b00001,
+        0b00011,
+        0b00111,
+        0b01111,
+        0b11111,
+    )
 
     def render(value, scrollphat):
         height = int(round((value + 1) / 2 * 5))
-        # could be optimized by using ``scrollphat.set_col``, but
-        # would be difficult to read
-        for x in xs:
-            for y in range(0, height):
-                scrollphat.set_pixel(x, 4 - y, True)
+        for col in cols:
+            scrollphat.set_col(col, bars[height])
 
     return render
 
 
 def Block(corner, size=(1, 1)):
     # unpack for readability
-    corner_x, corner_y = corner
-    x_size, y_size = size
-    xs = [corner_x + x for x in range(x_size)]
-    ys = [corner_y + y for y in range(y_size)]
+    col, row = corner
+    width, height = size
+    xs = [col + x for x in range(width)]
+    ys = [row + y for y in range(height)]
 
     def render(value, scrollphat):
         if value >= 0:
             for x in xs:
                 for y in ys:
-                    scrollphat.set_pixel(x, 4 - y, True)
+                    scrollphat.set_pixel(x, y - 4, True)
 
     return render

@@ -41,9 +41,9 @@ DISPLAY = (
     # channel 2: dot vertical axis
     stick_dot.vertical(),
     # channel 3: throttle bar
-    YBar(center_x=0, width=2),
+    YBar(col=0, width=2),
     # channel 4: flight mode switch
-    YDot(center_x=9),
+    YDot(col=9),
     # channels 5-8: buttons demo
     Block(corner=(10, 0)),
     Block(corner=(10, 1)),
