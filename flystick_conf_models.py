@@ -2,8 +2,32 @@ import pygame.joystick
 
 
 class Ch(object):
-    # Questionable whether all this indirection is worth having the
-    # easier reverse syntax (minus-prefix) for configuration...
+    """Implements channel mixing.
+
+    Mix examples:
+
+        Reverse:
+            -stick.axis(0)
+
+        Offset:
+            stick.axis(0) - 0.1
+
+        Weight:
+            stick.axis(0) * 0.5
+
+        Mixing:
+            stick.axis(0) - stick.axis(1) * 0.5
+
+        Trim:
+            stick.axis(0) - Switch(..) * 0.5
+
+        Reverse + offset + weight + trim:
+            (-stick.axis(0) + 0.1) * 0.7 - Switch(..) * 0.5
+
+    Also a shortcut to scale the output to range [0..1]
+    instead of the normal [-1..1]:
+        +stick.axis(0)
+    """
     def __init__(self, fn):
         self.fn = fn
 
@@ -12,6 +36,33 @@ class Ch(object):
 
     def __neg__(self):
         return Ch(lambda evts: -self.fn(evts))
+
+    def __add__(self, x):
+        if isinstance(x, float):
+            return Ch(lambda evts: self.fn(evts) + x)
+        elif isinstance(x, Ch):
+            return Ch(lambda evts: self.fn(evts) + x(evts))
+        else:
+            raise ValueError("Invalid argument %r" % (x,))
+
+    def __sub__(self, x):
+        if isinstance(x, float):
+            return Ch(lambda evts: self.fn(evts) - x)
+        elif isinstance(x, Ch):
+            return Ch(lambda evts: self.fn(evts) - x(evts))
+        else:
+            raise ValueError("Invalid argument %r" % (x,))
+
+    def __mul__(self, x):
+        if isinstance(x, float):
+            return Ch(lambda evts: self.fn(evts) * x)
+        elif isinstance(x, Ch):
+            return Ch(lambda evts: self.fn(evts) * x(evts))
+        else:
+            raise ValueError("Invalid argument %r" % (x,))
+
+    def __pos__(self):
+        return Ch(lambda evts: .5 + self.fn(evts) / 2)
 
 
 class Joystick(object):
