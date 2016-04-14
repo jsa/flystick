@@ -36,6 +36,16 @@ _output = ()
 
 
 def render():
+    # LED check
+    for col in range(0, 11, 2):
+        scrollphat.clear_buffer()
+        scrollphat.set_col(col, 0b11111)
+        scrollphat.set_col(col + 1, 0b11111)
+        scrollphat.update()
+        time.sleep(.2)
+
+    time.sleep(.2)
+
     while _running:
         scrollphat.clear_buffer()
         # ``_output`` access should be thread-safe; de-referenced just once
