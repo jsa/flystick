@@ -14,9 +14,9 @@ The input/output-mapping and visualization are
 
 1. `sudo apt-get install python-pygame`
 
-2. pigpio: http://abyz.co.uk/rpi/pigpio/download.html
+2. http://abyz.co.uk/rpi/pigpio/download.html
 
-3. from https://github.com/pimoroni/scroll-phat/blob/master/README.md:
+3. from https://github.com/pimoroni/scroll-phat:
 
    `curl -sS https://get.pimoroni.com/scrollphat | bash`
 
@@ -24,7 +24,7 @@ The input/output-mapping and visualization are
 
 ## Running
 
-Append to (`/etc/rc.local`)[https://www.raspberrypi.org/documentation/linux/usage/rc-local.md]
+Append to [`/etc/rc.local`](https://www.raspberrypi.org/documentation/linux/usage/rc-local.md)
 BEFORE THE LINE `exit 0`:
 
 ```
