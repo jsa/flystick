@@ -12,7 +12,7 @@ The input/output-mapping and visualization are
 
 ## Installation
 
-1. `sudo apt-get install python-pygame`
+1. `sudo apt-get install python-pygame git`
 
 2. http://abyz.co.uk/rpi/pigpio/download.html
 
