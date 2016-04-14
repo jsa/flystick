@@ -92,21 +92,18 @@ class Joystick(object):
             raise ValueError("hat or button required")
 
 
-class Switch(object):
-    def __init__(self, steps, source):
-        self.steps = steps
-        self.source = source
-        self.step = 0
-
-    def __call__(self, evts):
-        for value in self.source(evts):
+def Switch(steps, source):
+    step = [0]
+    def ch(evts):
+        for value in source(evts):
             if value > 0:
-                self.step = (self.step + 1) % self.steps
+                step[0] = (step[0] + 1) % steps
             elif value < 0:
-                self.step -= 1
-                if self.step < 0:
-                    self.step += self.steps
-        return 2. * self.step / (self.steps - 1) - 1
+                step[0] -= 1
+                if step[0] < 0:
+                    step[0] += steps
+        return 2. * step[0] / (steps - 1) - 1
+    return Ch(ch)
 
 
 def XDot(center):

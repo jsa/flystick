@@ -38,9 +38,12 @@ _output = ()
 def render():
     while _running:
         scrollphat.clear_buffer()
-        # ``_output`` access should be thread-safe;  de-referenced just once
+        # ``_output`` access should be thread-safe; de-referenced just once
         for rend, value in zip(DISPLAY, _output):
-            rend(value, scrollphat)
+            try:
+                rend(value, scrollphat)
+            except ValueError:
+                pass
         scrollphat.update()
         time.sleep(.05)
 
@@ -91,7 +94,7 @@ def main(dma_channel, gpio):
                 hats.append(evt)
 
         # tuple to enforce immutability
-        _output = tuple(ch((clicks, hats)) for ch in CHANNELS)
+        _output = tuple(max(min(ch((clicks, hats)), 1), -1) for ch in CHANNELS)
         #print "Channels: %s" % (output,)
 
         if _output != prev:
