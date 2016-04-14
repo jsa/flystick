@@ -22,6 +22,11 @@ The input/output-mapping and visualization are
 
 4. `git clone https://github.com/jsa/flystick.git`
 
+5. [Configure channel mapping](flystick_config.py).
+
+6. Calibrate joystick, see [`jscal`](http://linux.die.net/man/1/jscal). Also the related `jstest`, `jscal-store`, and
+`jscal-restore`.
+
 ## Running
 
 Insert to [`/etc/rc.local`](https://www.raspberrypi.org/documentation/linux/usage/rc-local.md)
@@ -34,7 +39,3 @@ cd ~pi/flystick
 python flystick.py &
 cd -
 ```
-
-See also the [`jscal`](http://linux.die.net/man/1/jscal) linux utility to
-calibrate joystick. (Also the related `jstest`, `jscal-store`, and
-`jscal-restore`.)
