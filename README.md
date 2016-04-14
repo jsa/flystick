@@ -36,5 +36,5 @@ cd -
 ```
 
 See also the [`jscal`](http://linux.die.net/man/1/jscal) linux utility to
-calibrate joystick. (Also the elated `jstest`, `jscal-store`, and
+calibrate joystick. (Also the related `jstest`, `jscal-store`, and
 `jscal-restore`.)
