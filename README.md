@@ -12,7 +12,7 @@ The input/output-mapping and visualization are
 
 ## [Demo video](https://www.youtube.com/watch?v=MNFTjIzeuHE)
 
-![Video screenshot](https://dl.dropboxusercontent.com/u/8056723/flystick-youtube.png "Screenshot")
+![Youtube screenshot](https://s3.amazonaws.com/janne.savukoski.name/flystick-youtube.png "Youtube screenshot")
 
 ## Installation (on Raspberry Pi)
 
