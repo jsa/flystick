@@ -92,8 +92,10 @@ class Joystick(object):
             raise ValueError("hat or button required")
 
 
-def Switch(steps, source):
-    step = [0]
+def Switch(steps, source, initial=None):
+    if initial is None:
+        initial = 0
+    step = [initial]
     def ch(evts):
         for value in source(evts):
             if value > 0:

@@ -9,7 +9,7 @@ from flystick_conf_models import *
 stick = Joystick(0)
 
 # aileron trim
-ail_trim = Switch(steps=40, source=stick.event(hat=(0, 0)))
+ail_trim = Switch(steps=41, source=stick.event(hat=(0, 0)), initial=20)
 
 # Output (PPM) channels.
 CHANNELS = (
