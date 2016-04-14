@@ -14,7 +14,7 @@ The input/output-mapping and visualization are
 
 ![Video screenshot](https://dl.dropboxusercontent.com/u/8056723/flystick-youtube.png "Screenshot")
 
-## Installation
+## Installation (on Raspberry Pi)
 
 1. `sudo apt-get install python-pygame git`
 
