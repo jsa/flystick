@@ -18,10 +18,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from flystick_config import *
 
 import logging
-import pigpio
 import pygame
 import threading
 import time
+
+try:
+    import pigpio
+except ImportError as e:
+    logging.warn(e, exc_info=True)
+    pigpio = None
 
 try:
     import scrollphat
@@ -63,8 +68,32 @@ def shutdown(signum, frame):
     _running = False
 
 
-def main(dma_channel, gpio):
+def main(gpio):
+    import signal
+    signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+    signal.signal(signal.SIGTERM, shutdown)
+
     global _output
+
+    pygame.init()
+
+    # Reading only "clicks" via events. These are used for advanced
+    # mappings. Events to avoid tracking state manually. Axes are read
+    # by snapshotting.
+    pygame.event.set_allowed([pygame.JOYBUTTONDOWN,
+                              pygame.JOYHATMOTION])
+
+    pi_gpio = 1 << gpio
+
+    if pigpio:
+        pi = pigpio.pi()
+        pi.set_mode(gpio, pigpio.OUTPUT)
+        pi.wave_add_generic([pigpio.pulse(pi_gpio, 0, 2000)])
+        # padding to make deleting logic easier
+        waves = [None, None, pi.wave_create()]
+        pi.wave_send_repeat(waves[-1])
+    else:
+        pi = None
 
     if scrollphat:
         scrollphat.clear()
@@ -73,28 +102,6 @@ def main(dma_channel, gpio):
         th = threading.Thread(target=render)
         th.daemon = True
         th.start()
-
-    pygame.init()
-
-    # Reading only "clicks" via events. These are used for advanced
-    # mappings. Events to avoid tracking state manually.
-    # Axes are read by snapshotting.
-    pygame.event.set_allowed([pygame.JOYBUTTONDOWN,
-                              pygame.JOYHATMOTION])
-
-    pi = pigpio.pi()
-    pi.set_mode(gpio, pigpio.OUTPUT)
-
-    import signal
-    signal.signal(signal.SIGCHLD, signal.SIG_IGN)
-    signal.signal(signal.SIGTERM, shutdown)
-
-    pi_gpio = 1 << gpio
-
-    pi.wave_add_generic([pigpio.pulse(pi_gpio, 0, 2000)])
-    # padding to make deleting logic easier
-    waves = [None, None, pi.wave_create()]
-    pi.wave_send_repeat(waves[-1])
 
     prev = None
 
@@ -111,9 +118,12 @@ def main(dma_channel, gpio):
 
         # tuple to enforce immutability
         _output = tuple(max(min(ch((clicks, hats)), 1), -1) for ch in CHANNELS)
-        #print "Channels: %s" % (output,)
 
-        if _output != prev:
+        if _output == prev:
+            # do nothing
+            pass
+
+        elif pigpio:
             pulses, pos = [], 0
             for value in _output:
                 # calibrated with Taranis to range [-99.6..0..99.4]
@@ -125,6 +135,7 @@ def main(dma_channel, gpio):
             pulses += [pigpio.pulse(0, pi_gpio, 300),
                        pigpio.pulse(pi_gpio, 0, 20000 - 300 - pos - 1)]
 
+
             pi.wave_add_generic(pulses)
             waves.append(pi.wave_create())
             pi.wave_send_using_mode(waves[-1], pigpio.WAVE_MODE_REPEAT_SYNC)
@@ -133,17 +144,22 @@ def main(dma_channel, gpio):
             if last:
                 pi.wave_delete(last)
 
+        else:
+            # debugging
+            print str(_output)
+
         prev = _output
 
         # NO BUSYLOOPING. And locking with ``pygame.event.wait`` doesn't sound
         # very sophisticated. (At this point, at least.)
         time.sleep(.02)
 
-    scrollphat.clear()
-    pi.stop()
+    if scrollphat:
+        scrollphat.clear()
+    if pi:
+        pi.stop()
 
 
 if __name__ == '__main__':
     _running = True
-    # DMA channel: https://www.raspberrypi.org/forums/viewtopic.php?f=32&t=86339
-    main(dma_channel=5, gpio=18)
+    main(gpio=18)

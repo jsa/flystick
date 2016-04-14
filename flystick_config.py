@@ -8,8 +8,8 @@ from flystick_conf_models import *
 
 stick = Joystick(0)
 
-# aileron trim
-ail_trim = Switch(steps=41, source=stick.event(hat=(0, 0)), initial=20)
+# aileron trim, hat side-to-side axis
+ail_trim = stick.hat_switch(hat=0, axis=0, steps=41, initial=20)
 
 # Output (PPM) channels.
 CHANNELS = (
@@ -21,8 +21,9 @@ CHANNELS = (
     -stick.axis(1),
     # channel 3: throttle (reversed)
     -stick.axis(2),
-    # channel 4: flight mode; 5 states to match scrollphat vertical resolution
-    Switch(steps=5, source=stick.event(hat=(0, 1))),
+    # channel 4: flight mode
+    # hat up-down axis, 5 states to match scrollphat vertical resolution
+    stick.hat_switch(hat=0, axis=1, steps=5),
     # channels 5-8: buttons demo
     stick.button(0),
     stick.button(1),

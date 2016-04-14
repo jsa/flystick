@@ -77,22 +77,17 @@ class Joystick(object):
     def button(self, button):
         return Ch(lambda evts: 1. if self._joy.get_button(button) else -1.)
 
-    def event(self, button=None, hat=None):
-        if hat:
-            hat, axis = hat
-            def map_evts(hats):
-                for evt in hats:
-                    if evt.joy == self._joy.get_id() \
-                       and evt.hat == hat:
-                        yield evt.value[axis]
-            return lambda (clicks, hats): map_evts(hats)
-        elif button is not None:
-            raise NotImplementedError
-        else:
-            raise ValueError("hat or button required")
+    def hat_switch(self, hat, axis, **switch):
+        def hat_values(hats):
+            for evt in hats:
+                if evt.joy == self._joy.get_id() \
+                   and evt.hat == hat:
+                    yield evt.value[axis]
+        return Switch(source=lambda (clicks, hats): hat_values(hats),
+                      **switch)
 
 
-def Switch(steps, source, initial=None):
+def Switch(source, steps, initial=None):
     if initial is None:
         initial = 0
     step = [initial]
@@ -104,6 +99,7 @@ def Switch(steps, source, initial=None):
                 step[0] -= 1
                 if step[0] < 0:
                     step[0] += steps
+            # ignore zero
         return 2. * step[0] / (steps - 1) - 1
     return Ch(ch)
 
