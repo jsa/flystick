@@ -7,7 +7,7 @@ A python script for Raspberry Pi that reads a USB joystick
 For the mandatory blinky-blinky, supports VERY FANCY (or so) visualizations
 using [Scroll pHAT](https://github.com/pimoroni/scroll-phat).
 
-The input/output-mapping and visualization are [highly configurable](../blob/master/flystick_conf_models.py).
+The input/output-mapping and visualization are [highly configurable](flystick_conf_models.py).
 
 ## Installation
 
