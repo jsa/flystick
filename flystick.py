@@ -58,6 +58,11 @@ def render():
         time.sleep(.05)
 
 
+def shutdown(signum, frame):
+    global _running
+    _running = False
+
+
 def main(dma_channel, gpio):
     global _output
 
@@ -80,8 +85,9 @@ def main(dma_channel, gpio):
     pi = pigpio.pi()
     pi.set_mode(gpio, pigpio.OUTPUT)
 
-    #import signal
-    #signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+    import signal
+    signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+    signal.signal(signal.SIGTERM, shutdown)
 
     pi_gpio = 1 << gpio
 
@@ -110,8 +116,8 @@ def main(dma_channel, gpio):
         if _output != prev:
             pulses, pos = [], 0
             for value in _output:
-                # empirical values for Taranis
-                us = int(round(1330 + 470 * value))
+                # calibrated with Taranis to range [-99.6..0..99.4]
+                us = int(round(1333 + 453 * value))
                 pulses += [pigpio.pulse(0, pi_gpio, 300),
                            pigpio.pulse(pi_gpio, 0, us - 300)]
                 pos += us
