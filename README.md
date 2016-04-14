@@ -20,6 +20,21 @@ The input/output-mapping and visualization are
 
    `curl -sS https://get.pimoroni.com/scrollphat | bash`
 
+4. `git clone https://github.com/jsa/flystick.git`
+
+## Running
+
+Append to (`/etc/rc.local')[https://www.raspberrypi.org/documentation/linux/usage/rc-local.md]
+BEFORE THE LINE `exit 0`:
+
+```
+pigpiod
+
+cd ~pi/flystick
+python ~pi/flystick/flystick.py &
+cd -
+```
+
 See also the [`jscal`](http://linux.die.net/man/1/jscal) linux utility to
 calibrate joystick. (Also the elated `jstest`, `jscal-store`, and
 `jscal-restore`.)
