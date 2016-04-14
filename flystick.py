@@ -139,6 +139,9 @@ def main(dma_channel, gpio):
         # very sophisticated. (At this point, at least.)
         time.sleep(.02)
 
+    scrollphat.clear()
+    pi.stop()
+
 
 if __name__ == '__main__':
     _running = True
