@@ -87,9 +87,7 @@ class Joystick(object):
                       **switch)
 
 
-def Switch(source, steps, initial=None):
-    if initial is None:
-        initial = 0
+def Switch(source, steps, initial=0):
     step = [initial]
     def ch(evts):
         for value in source(evts):
