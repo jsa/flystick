@@ -27,6 +27,8 @@ The input/output-mapping and visualization are
 6. Calibrate joystick, see [`jscal`](http://linux.die.net/man/1/jscal). Also the related `jstest`, `jscal-store`, and
 `jscal-restore`.
 
+7. [Configure Pi for safe unplugging](https://www.raspberrypi.org/forums/viewtopic.php?p=119884#p128497).
+
 ## Running
 
 Insert to [`/etc/rc.local`](https://www.raspberrypi.org/documentation/linux/usage/rc-local.md)
