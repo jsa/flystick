@@ -165,4 +165,5 @@ if __name__ == '__main__':
     _running = True
     signal.signal(signal.SIGCHLD, signal.SIG_IGN)
     signal.signal(signal.SIGTERM, shutdown)
+    signal.signal(signal.SIGINT, shutdown)
     main(gpio=18)
