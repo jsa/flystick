@@ -1,3 +1,9 @@
+"""
+This "demo" configuration is for the most spartanly-named
+Thrustmaster USB Joystick (http://www.thrustmaster.com/products/usb-joystick).
+It was the cheapest joystick in my local electronics shop, and - as an added
+bonus - it had just the throttle lever I wanted.
+"""
 from flystick_conf_models import *
 
 stick = Joystick(0)
