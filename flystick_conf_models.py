@@ -43,7 +43,7 @@ class Ch(object):
         elif isinstance(x, Ch):
             return Ch(lambda evts: self.fn(evts) + x(evts))
         else:
-            raise ValueError("Invalid argument %r" % (x,))
+            raise ValueError("Invalid positive offset %r" % (x,))
 
     def __sub__(self, x):
         if isinstance(x, float):
@@ -51,7 +51,7 @@ class Ch(object):
         elif isinstance(x, Ch):
             return Ch(lambda evts: self.fn(evts) - x(evts))
         else:
-            raise ValueError("Invalid argument %r" % (x,))
+            raise ValueError("Invalid negative offset %r" % (x,))
 
     def __mul__(self, x):
         if isinstance(x, float):
@@ -59,13 +59,16 @@ class Ch(object):
         elif isinstance(x, Ch):
             return Ch(lambda evts: self.fn(evts) * x(evts))
         else:
-            raise ValueError("Invalid argument %r" % (x,))
+            raise ValueError("Invalid weight %r" % (x,))
 
     def __pos__(self):
         return Ch(lambda evts: .5 + self.fn(evts) / 2)
 
 
 class Joystick(object):
+    """A base class for setting up mapping of different axes and buttons
+    of a joystick.
+    """
     def __init__(self, joy_id):
         pygame.joystick.init()
         self._joy = pygame.joystick.Joystick(joy_id)
@@ -83,26 +86,33 @@ class Joystick(object):
                 if evt.joy == self._joy.get_id() \
                    and evt.hat == hat:
                     yield evt.value[axis]
-        return Switch(source=lambda (clicks, hats): hat_values(hats),
-                      **switch)
+        return Ch(Switch(evt_map=lambda (clicks, hats): hat_values(hats),
+                         **switch))
 
 
-def Switch(source, steps, initial=0):
-    step = [initial]
-    def ch(evts):
-        for value in source(evts):
+class Switch(object):
+    """Models a virtual multi-position switch. Excellent for example
+    trims and flight mode control.
+    """
+    def __init__(self, evt_map, positions, initial=0):
+        self.evt_map = evt_map
+        self.positions = positions
+        self.pos = initial
+
+    def __call__(self, evts):
+        for value in self.evt_map(evts):
             if value > 0:
-                step[0] = (step[0] + 1) % steps
+                self.pos = (self.pos + 1) % self.positions
             elif value < 0:
-                step[0] -= 1
-                if step[0] < 0:
-                    step[0] += steps
+                self.pos -= 1
+                if self.pos < 0:
+                    self.pos += self.positions
             # ignore zero
-        return 2. * step[0] / (steps - 1) - 1
-    return Ch(ch)
+        return 2. * self.pos / (self.positions - 1) - 1
 
 
 def XDot(center):
+    """A dot moving horizontally."""
     col, row = center
 
     def render(value, scrollphat):
@@ -113,6 +123,7 @@ def XDot(center):
 
 
 def YDot(col):
+    """A dot moving vertically."""
     def render(value, scrollphat):
         y = 2 + int(round(value * 2))
         scrollphat.set_pixel(col, 4 - y, True)
@@ -121,6 +132,9 @@ def YDot(col):
 
 
 class XYDot(object):
+    """A dot moving both horizontally and vertically: visualizes two
+    axes on a square area.
+    """
     def __init__(self, col):
         self.col = col
         self.x = self.y = None
@@ -147,6 +161,7 @@ class XYDot(object):
 
 
 def YBar(col, width=1):
+    """A vertical "bar graph". Excellent for throttle visualization."""
     cols = [col + x for x in range(width)]
     bars = (
         0b00000,
@@ -166,14 +181,14 @@ def YBar(col, width=1):
 
 
 def Block(corner, size=(1, 1)):
-    # unpack for readability
+    """On-off square block of leds. For visualizing button presses."""
     col, row = corner
     width, height = size
     xs = [col + x for x in range(width)]
     ys = [row + y for y in range(height)]
 
     def render(value, scrollphat):
-        if value >= 0:
+        if value > 0:
             for x in xs:
                 for y in ys:
                     scrollphat.set_pixel(x, 4 - y, True)

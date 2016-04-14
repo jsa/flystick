@@ -15,10 +15,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-from flystick_config import *
+from flystick_config import CHANNELS, DISPLAY, DISPLAY_BRIGHTNESS
 
 import logging
 import pygame
+import signal
 import threading
 import time
 
@@ -26,12 +27,14 @@ try:
     import pigpio
 except ImportError as e:
     logging.warn(e, exc_info=True)
+    logging.warn("Failed to load pigpio library, running in debug mode")
     pigpio = None
 
 try:
     import scrollphat
 except (ImportError, IOError) as e:
     logging.warn(e, exc_info=True)
+    logging.warn("Failed to load Scroll pHAT library, you'll be missing all the fancy graphics")
     scrollphat = None
 
 
@@ -42,14 +45,16 @@ _output = ()
 
 def render():
     # LED check
-    for col in range(0, 11, 2):
-        scrollphat.clear_buffer()
-        scrollphat.set_col(col, 0b11111)
-        scrollphat.set_col(col + 1, 0b11111)
+    scrollphat.clear_buffer()
+    for col in range(0, 13):
+        if col > 1:
+            scrollphat.set_col(col - 2, 0)
+        if col < 11:
+            scrollphat.set_col(col, 0b11111)
         scrollphat.update()
-        time.sleep(.2)
+        time.sleep(.1)
 
-    time.sleep(.2)
+    time.sleep(.3)
 
     while _running:
         scrollphat.clear_buffer()
@@ -57,8 +62,8 @@ def render():
         for rend, value in zip(DISPLAY, _output):
             try:
                 rend(value, scrollphat)
-            except ValueError:
-                pass
+            except ValueError as e:
+                logging.warn(e, exc_info=True)
         scrollphat.update()
         time.sleep(.05)
 
@@ -69,10 +74,6 @@ def shutdown(signum, frame):
 
 
 def main(gpio):
-    import signal
-    signal.signal(signal.SIGCHLD, signal.SIG_IGN)
-    signal.signal(signal.SIGTERM, shutdown)
-
     global _output
 
     pygame.init()
@@ -117,7 +118,8 @@ def main(gpio):
                 hats.append(evt)
 
         # tuple to enforce immutability
-        _output = tuple(max(min(ch((clicks, hats)), 1), -1) for ch in CHANNELS)
+        _output = tuple(max(min(ch((clicks, hats)), 1.), -1.)
+                        for ch in CHANNELS)
 
         if _output == prev:
             # do nothing
@@ -126,7 +128,7 @@ def main(gpio):
         elif pigpio:
             pulses, pos = [], 0
             for value in _output:
-                # calibrated with Taranis to range [-99.6..0..99.4]
+                # calibrated with Taranis to [-99.6..0..99.4]
                 us = int(round(1333 + 453 * value))
                 pulses += [pigpio.pulse(0, pi_gpio, 300),
                            pigpio.pulse(pi_gpio, 0, us - 300)]
@@ -134,7 +136,6 @@ def main(gpio):
 
             pulses += [pigpio.pulse(0, pi_gpio, 300),
                        pigpio.pulse(pi_gpio, 0, 20000 - 300 - pos - 1)]
-
 
             pi.wave_add_generic(pulses)
             waves.append(pi.wave_create())
@@ -162,4 +163,6 @@ def main(gpio):
 
 if __name__ == '__main__':
     _running = True
+    signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+    signal.signal(signal.SIGTERM, shutdown)
     main(gpio=18)
