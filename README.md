@@ -5,7 +5,7 @@ A python script for Raspberry Pi that reads a USB joystick
 RC transmitter (with [pigpio](http://abyz.co.uk/rpi/pigpio/python.html)).
 
 For the mandatory blinky-blinky, supports VERY FANCY (or so) visualizations
-using [Scroll pHAT](https://github.com/pimoroni/scroll-phat).
+for [Scroll pHAT](https://github.com/pimoroni/scroll-phat).
 
 The input/output-mapping and visualization are
 [highly configurable](flystick_config.py).
@@ -24,7 +24,7 @@ The input/output-mapping and visualization are
 
 ## Running
 
-Append to (`/etc/rc.local')[https://www.raspberrypi.org/documentation/linux/usage/rc-local.md]
+Append to (`/etc/rc.local`)[https://www.raspberrypi.org/documentation/linux/usage/rc-local.md]
 BEFORE THE LINE `exit 0`:
 
 ```
