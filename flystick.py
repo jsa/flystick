@@ -15,7 +15,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-from flystick_config import CHANNELS, DISPLAY, DISPLAY_BRIGHTNESS
+from flystick_config import (
+    CHANNELS, DISPLAY, DISPLAY_BRIGHTNESS, PPM_OUTPUT_PIN)
 
 import logging
 import pygame
@@ -73,7 +74,7 @@ def shutdown(signum, frame):
     _running = False
 
 
-def main(gpio):
+def main():
     global _output
 
     pygame.init()
@@ -84,11 +85,11 @@ def main(gpio):
     pygame.event.set_allowed([pygame.JOYBUTTONDOWN,
                               pygame.JOYHATMOTION])
 
-    pi_gpio = 1 << gpio
+    pi_gpio = 1 << PPM_OUTPUT_PIN
 
     if pigpio:
         pi = pigpio.pi()
-        pi.set_mode(gpio, pigpio.OUTPUT)
+        pi.set_mode(PPM_OUTPUT_PIN, pigpio.OUTPUT)
         pi.wave_add_generic([pigpio.pulse(pi_gpio, 0, 2000)])
         # padding to make deleting logic easier
         waves = [None, None, pi.wave_create()]
@@ -166,4 +167,4 @@ if __name__ == '__main__':
     signal.signal(signal.SIGCHLD, signal.SIG_IGN)
     signal.signal(signal.SIGTERM, shutdown)
     signal.signal(signal.SIGINT, shutdown)
-    main(gpio=18)
+    main()
