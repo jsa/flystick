@@ -31,7 +31,7 @@ BEFORE THE LINE `exit 0`:
 pigpiod
 
 cd ~pi/flystick
-python ~pi/flystick/flystick.py &
+python flystick.py &
 cd -
 ```
 
