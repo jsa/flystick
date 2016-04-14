@@ -20,6 +20,6 @@ The input/output-mapping and visualization are
 
    `curl -sS https://get.pimoroni.com/scrollphat | bash`
 
-See also the `[jscal](http://linux.die.net/man/1/jscal)` linux utility to
+See also the [`jscal`](http://linux.die.net/man/1/jscal) linux utility to
 calibrate joystick. (Also the elated `jstest`, `jscal-store`, and
 `jscal-restore`.)
