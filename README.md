@@ -34,16 +34,6 @@ When the Raspberry Pi Zero came out, it seemed like a perfect hardware component
 
 4. `git clone https://github.com/jsa/flystick.git`
 
-5. Insert to [`/etc/rc.local`](https://www.raspberrypi.org/documentation/linux/usage/rc-local.md) BEFORE THE LINE `exit 0`:
-
-   ```
-   pigpiod
-   
-   cd ~pi/flystick
-   python flystick.py &
-   cd -
-   ```
-
 ### Configuration
 
 1. Calibrate joystick, see [`jscal`](http://linux.die.net/man/1/jscal). Also the related `jstest`, `jscal-store`, and
@@ -52,6 +42,16 @@ When the Raspberry Pi Zero came out, it seemed like a perfect hardware component
 2. [Configure channel mapping](flystick_config.py).
 
 3. [Configure Pi for safe unplugging](https://www.raspberrypi.org/forums/viewtopic.php?p=119884#p128497).
+
+4. Insert to [`/etc/rc.local`](https://www.raspberrypi.org/documentation/linux/usage/rc-local.md) BEFORE THE LINE `exit 0`:
+
+   ```
+   pigpiod
+   
+   cd ~pi/flystick
+   python flystick.py &
+   cd -
+   ```
 
 ### Wiring
 
