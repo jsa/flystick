@@ -32,7 +32,7 @@ CHANNELS = (
 )
 
 # dual-channel display component
-stick_dot = XYDot(center_x=5)
+stick_dot = XYDot(col=5)
 
 # Render outputs (channels). One-to-one line match to CHANNELS.
 DISPLAY = (

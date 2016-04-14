@@ -109,7 +109,7 @@ def XDot(center):
 
     def render(value, scrollphat):
         x = int(round(value * 2))
-        scrollphat.set_pixel(col + x, row - 4, True)
+        scrollphat.set_pixel(col + x, 4 - row, True)
 
     return render
 
@@ -117,7 +117,7 @@ def XDot(center):
 def YDot(col):
     def render(value, scrollphat):
         y = 2 + int(round(value * 2))
-        scrollphat.set_pixel(col, y - 4, True)
+        scrollphat.set_pixel(col, 4 - y, True)
 
     return render
 
@@ -133,7 +133,7 @@ class XYDot(object):
             if self.y is None:
                 self.x = x
             else:
-                scrollphat.set_pixel(x, self.y - 4, True)
+                scrollphat.set_pixel(x, 4 - self.y, True)
                 self.x = self.y = None
         return render
 
@@ -143,7 +143,7 @@ class XYDot(object):
             if self.x is None:
                 self.y = y
             else:
-                scrollphat.set_pixel(self.x, y - 4, True)
+                scrollphat.set_pixel(self.x, 4 - y, True)
                 self.x = self.y = None
         return render
 
@@ -152,10 +152,10 @@ def YBar(col, width=1):
     cols = [col + x for x in range(width)]
     bars = (
         0b00000,
-        0b00001,
-        0b00011,
-        0b00111,
-        0b01111,
+        0b10000,
+        0b11000,
+        0b11100,
+        0b11110,
         0b11111,
     )
 
@@ -178,6 +178,6 @@ def Block(corner, size=(1, 1)):
         if value >= 0:
             for x in xs:
                 for y in ys:
-                    scrollphat.set_pixel(x, y - 4, True)
+                    scrollphat.set_pixel(x, 4 - y, True)
 
     return render
