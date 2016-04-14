@@ -24,7 +24,7 @@ The input/output-mapping and visualization are
 
 ## Running
 
-Append to [`/etc/rc.local`](https://www.raspberrypi.org/documentation/linux/usage/rc-local.md)
+Insert to [`/etc/rc.local`](https://www.raspberrypi.org/documentation/linux/usage/rc-local.md)
 BEFORE THE LINE `exit 0`:
 
 ```
