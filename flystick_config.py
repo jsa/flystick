@@ -12,7 +12,7 @@ CHANNELS = (
     -stick.axis(2),
     # channel 4: flight mode; 5 states to match scrollphat vertical resolution
     Switch(steps=5, source=stick.event(hat=(0, 1))),
-    # buttons demo
+    # channels 5-8: buttons demo
     stick.button(0),
     stick.button(1),
     stick.button(2),
@@ -31,7 +31,7 @@ DISPLAY = (
     YBar(center_x=0, width=2),
     # channel 4: flight mode switch
     YDot(center_x=9),
-    # buttons demo
+    # channels 5-8: buttons demo
     Block(corner=(10, 0)),
     Block(corner=(10, 1)),
     Block(corner=(10, 2)),
