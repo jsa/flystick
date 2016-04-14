@@ -10,9 +10,9 @@ for [Scroll pHAT](https://github.com/pimoroni/scroll-phat).
 The input/output-mapping and visualization are
 [highly configurable](flystick_config.py).
 
-![Video screenshot](https://dl.dropboxusercontent.com/u/8056723/flystick-youtube.png "Screenshot")
+## [Demo video](https://www.youtube.com/watch?v=MNFTjIzeuHE)
 
-[Demo video](https://www.youtube.com/watch?v=MNFTjIzeuHE)
+![Video screenshot](https://dl.dropboxusercontent.com/u/8056723/flystick-youtube.png "Screenshot")
 
 ## Installation
 
