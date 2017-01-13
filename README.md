@@ -28,7 +28,7 @@ When the Raspberry Pi Zero came out, it seemed like a perfect hardware component
 
 2. http://abyz.co.uk/rpi/pigpio/download.html
 
-3. from https://github.com/pimoroni/scroll-phat:
+3. *Optional:* from https://github.com/pimoroni/scroll-phat:
 
    `curl -sS https://get.pimoroni.com/scrollphat | bash`
 
